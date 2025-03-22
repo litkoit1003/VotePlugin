@@ -6,5 +6,6 @@ import org.craftarix.monitoring.menu.item.Item;
 
 public interface Menu extends InventoryHolder {
     void openInventory(Player player);
+
     Item getItem(int slot);
 }

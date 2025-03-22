@@ -23,9 +23,10 @@ public class ButtonItem extends BaseItem {
         if (event instanceof InventoryClickEvent)
             clickHandler.handle((InventoryClickEvent) event);
     }
+
     @Override
-    public Item clone(){
-        ButtonItem newItem = (ButtonItem)super.clone();
+    public Item clone() {
+        ButtonItem newItem = (ButtonItem) super.clone();
         newItem.clickHandler = clickHandler;
         return newItem;
     }

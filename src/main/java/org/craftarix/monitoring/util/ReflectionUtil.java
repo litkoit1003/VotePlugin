@@ -4,26 +4,26 @@ import com.mojang.authlib.GameProfile;
 import lombok.experimental.UtilityClass;
 
 import java.lang.reflect.Field;
+
 @UtilityClass
 public class ReflectionUtil {
     private static Class resolvableProfileClass = null;
+
     static {
         try {
             resolvableProfileClass = Class.forName("net.minecraft.world.item.component.ResolvableProfile");
-        }
-        catch (ClassNotFoundException ignored){
+        } catch (ClassNotFoundException ignored) {
         }
     }
-    public Object getResolvableProfile(GameProfile gameProfile){
+
+    public Object getResolvableProfile(GameProfile gameProfile) {
         Object profile = null;
-        if(resolvableProfileClass == null){
+        if (resolvableProfileClass == null) {
             profile = gameProfile;
-        }
-        else{
+        } else {
             try {
                 profile = resolvableProfileClass.getConstructor(GameProfile.class).newInstance(gameProfile);
-            }
-            catch (Exception ignored){
+            } catch (Exception ignored) {
 
             }
         }
@@ -38,11 +38,9 @@ public class ReflectionUtil {
             f = clazz.getDeclaredField(field);
             f.setAccessible(true);
             f.set(object, fieldValue);
-        }
-        catch (IllegalAccessException | NoSuchFieldException e) {
+        } catch (IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
-        }
-        finally {
+        } finally {
             f.setAccessible(false);
         }
     }

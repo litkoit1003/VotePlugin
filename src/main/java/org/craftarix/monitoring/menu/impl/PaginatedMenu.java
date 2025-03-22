@@ -6,12 +6,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.craftarix.monitoring.MonitoringPlugin;
 import org.craftarix.monitoring.menu.Menu;
-import org.craftarix.monitoring.menu.item.impl.ButtonItem;
 import org.craftarix.monitoring.menu.item.ClickHandler;
 import org.craftarix.monitoring.menu.item.Item;
+import org.craftarix.monitoring.menu.item.impl.ButtonItem;
 import org.craftarix.monitoring.menu.item.impl.SimpleItem;
+import org.craftarix.monitoring.util.BukkitTasks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public abstract class PaginatedMenu implements Menu {
     protected void replaceItem(int slot, ItemStack newIcon, int delay) {
         var oldItem = items.remove(slot);
         inventory.setItem(slot, newIcon);
-        Bukkit.getScheduler().runTaskLater(MonitoringPlugin.INSTANCE, () -> {
+        BukkitTasks.runTaskLater(() -> {
             items.put(slot, oldItem);
             inventory.setItem(slot, oldItem.getIcon());
         }, delay);

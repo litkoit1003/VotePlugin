@@ -2,23 +2,17 @@ package org.craftarix.monitoring.api;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.craftarix.monitoring.api.model.CurrentServerModel;
 import org.craftarix.monitoring.api.model.GetVotesModel;
 import org.craftarix.monitoring.api.model.TakeVoteModel;
-import org.craftarix.monitoring.util.GsonUtil;
+import org.craftarix.monitoring.util.JsonUtil;
 
-import javax.net.ssl.*;
+import javax.net.ssl.HttpsURLConnection;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Scanner;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class McEcoService implements VoteService {
 
@@ -46,7 +40,7 @@ public class McEcoService implements VoteService {
             return 0;
         }
 
-        return GsonUtil.unparseJson(res.responseString, GetVotesModel.class).getBalance();
+        return JsonUtil.unparseJson(res.responseString, GetVotesModel.class).getBalance();
     }
 
     @Override
@@ -54,7 +48,7 @@ public class McEcoService implements VoteService {
         var model = new TakeVoteModel();
         model.setValue(votes);
 
-        getResponse("/mc-server-plugin/" + playerName, "POST", GsonUtil.parseJson(model));
+        getResponse("/mc-server-plugin/" + playerName, "POST", JsonUtil.parseJson(model));
     }
 
     @Override
@@ -70,7 +64,7 @@ public class McEcoService implements VoteService {
             return null;
         }
 
-        return GsonUtil.unparseJson(res.responseString, CurrentServerModel.class);
+        return JsonUtil.unparseJson(res.responseString, CurrentServerModel.class);
     }
 
     private Response getResponse(@NonNull String requestAddress, @NonNull String method, String writableJson) {
@@ -104,7 +98,7 @@ public class McEcoService implements VoteService {
     }
 
 
-    public class Response {
+    public static class Response {
         public int responseCode;
         public String responseString;
 

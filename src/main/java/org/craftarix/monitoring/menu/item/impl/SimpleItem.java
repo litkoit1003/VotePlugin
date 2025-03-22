@@ -14,8 +14,9 @@ public class SimpleItem extends BaseItem {
     public void onClick(Event event) {
 
     }
+
     @Override
-    public Item clone(){
+    public Item clone() {
         return super.clone();
     }
 }

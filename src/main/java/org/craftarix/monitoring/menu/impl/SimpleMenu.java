@@ -15,22 +15,29 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class SimpleMenu implements Menu {
     private final Inventory inventory;
     private final ConcurrentHashMap<Integer, Item> items = new ConcurrentHashMap<>();
-    public SimpleMenu(String title, int size){
+
+    public SimpleMenu(String title, int size) {
         inventory = Bukkit.createInventory(this, size, title);
     }
+
     protected abstract void drawInventory(Player player);
-    protected void draw(Item item){
+
+    protected void draw(Item item) {
         items.put(item.getSlot(), item);
     }
-    protected void draw(int slot, ItemStack icon, ClickHandler clickHandler){
+
+    protected void draw(int slot, ItemStack icon, ClickHandler clickHandler) {
         draw(new ButtonItem(icon, slot, clickHandler));
     }
-    protected void draw(int slot, ItemStack icon){
+
+    protected void draw(int slot, ItemStack icon) {
         draw(new SimpleItem(icon, slot));
     }
-    public Item getItem(int slot){
+
+    public Item getItem(int slot) {
         return items.get(slot);
     }
+
     @Override
     public void openInventory(Player player) {
         drawInventory(player);

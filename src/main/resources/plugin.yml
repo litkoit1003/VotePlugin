@@ -2,6 +2,7 @@ name: MinecraftEcoVote
 version: '${project.version}'
 main: org.craftarix.monitoring.MonitoringPlugin
 api-version: '1.16'
+folia-supported: true
 commands:
   vote:
     description: Command for voting

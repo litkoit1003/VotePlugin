@@ -1,14 +1,14 @@
 package org.craftarix.monitoring;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.craftarix.monitoring.api.McEcoServiceAsync;
 import org.craftarix.monitoring.api.VoteService;
 import org.craftarix.monitoring.api.model.GetVotesModel;
 import org.craftarix.monitoring.config.Settings;
 import org.craftarix.monitoring.menu.impl.PaginatedMenu;
-import org.craftarix.monitoring.util.GsonUtil;
+import org.craftarix.monitoring.util.BukkitTasks;
+import org.craftarix.monitoring.util.JsonUtil;
 import org.craftarix.monitoring.util.ItemUtil;
 
 public class VoteMenu extends PaginatedMenu {
@@ -16,6 +16,7 @@ public class VoteMenu extends PaginatedMenu {
     private static final Settings settings = MonitoringPlugin.INSTANCE.getSettings();
     private final VoteService voteService;
     private int currentVotes;
+
     public VoteMenu() {
         super(settings.getInventoryTitle(), 54);
         voteService = MonitoringPlugin.INSTANCE.getVoteService();
@@ -24,30 +25,31 @@ public class VoteMenu extends PaginatedMenu {
         setNextIcon(settings.getNextPage());
         setPrevIcon(settings.getPrevPage());
     }
+
     @Override
-    public void openInventory(Player player){
-        if(voteService instanceof McEcoServiceAsync serviceAsync){
-            Bukkit.getScheduler().runTaskAsynchronously(MonitoringPlugin.INSTANCE, () -> {
+    public void openInventory(Player player) {
+        if (voteService instanceof McEcoServiceAsync serviceAsync) {
+            BukkitTasks.runTaskAsync(() -> {
                 serviceAsync.getVotesAsync(player.getName())
                         .whenComplete(((response, throwable) -> {
-                            if(response == null){
+                            if (response == null) {
                                 return;
                             }
-                            if(response.statusCode() != 200){
+                            if (response.statusCode() != 200) {
                                 return;
                             }
-                            currentVotes = GsonUtil.unparseJson(response.body(), GetVotesModel.class).getBalance();
-                            Bukkit.getScheduler().runTask(MonitoringPlugin.INSTANCE, () -> {
+                            currentVotes = JsonUtil.unparseJson(response.body(), GetVotesModel.class).getBalance();
+                            BukkitTasks.runTask(() -> {
                                 super.openInventory(player);
                             });
                         }));
             });
-        }
-        else{
+        } else {
             currentVotes = voteService.getVotes(player.getName());
             super.openInventory(player);
         }
     }
+
     @Override
     protected void drawInventory(Player player) {
         settings.getDesign().forEach(item -> {

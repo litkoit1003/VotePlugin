@@ -37,8 +37,7 @@ public class Settings {
         var productsSection = fileConfiguration.getConfigurationSection("products");
         if (productsSection == null) {
             Bukkit.getLogger().log(Level.WARNING, "[Monitoring]: products not configured");
-        }
-        else{
+        } else {
             for (var key : productsSection.getKeys(false)) {
                 var productSection = productsSection.getConfigurationSection(key);
                 var icon = ItemUtil.loadItemFromConfig(productSection.getConfigurationSection("icon"));
@@ -52,7 +51,8 @@ public class Settings {
             }
         }
     }
-    private void loadDesign(FileConfiguration fileConfiguration){
+
+    private void loadDesign(FileConfiguration fileConfiguration) {
         inventoryTitle = fileConfiguration.getString("design.title", "VoteShop");
 
         successBuyIcon = ItemUtil.loadItemFromConfig(fileConfiguration.getConfigurationSection("design.successBuyIcon"));
@@ -60,7 +60,7 @@ public class Settings {
         notEnoughVotesMessages = fileConfiguration.getStringList("design.notEnoughVotesMessages");
         productSlots = fileConfiguration.getIntegerList("design.productSlots");
         var otherDesignSection = fileConfiguration.getConfigurationSection("design.inventory");
-        if(otherDesignSection != null){
+        if (otherDesignSection != null) {
             for (var key : otherDesignSection.getKeys(false)) {
                 var otherSection = otherDesignSection.getConfigurationSection(key);
                 var slot = otherSection.getInt("slot", 0);
@@ -96,7 +96,8 @@ public class Settings {
         }
 
     }
-    public void reload(){
+
+    public void reload() {
         products.clear();
         design.clear();
         MonitoringPlugin.INSTANCE.reloadConfig();

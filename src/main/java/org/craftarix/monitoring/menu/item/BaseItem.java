@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack;
 
 @Getter
 
-public abstract class BaseItem implements Item, Cloneable{
+public abstract class BaseItem implements Item, Cloneable {
     @Setter
     private ItemStack icon;
     private int slot;
@@ -15,9 +15,10 @@ public abstract class BaseItem implements Item, Cloneable{
         this.icon = icon;
         this.slot = slot;
     }
-    public Item clone(){
+
+    public Item clone() {
         try {
-            BaseItem item = (BaseItem)super.clone();
+            BaseItem item = (BaseItem) super.clone();
 
             item.icon = icon.clone();
             item.slot = slot;

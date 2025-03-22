@@ -10,9 +10,9 @@ import org.craftarix.monitoring.VoteMenu;
 public class VoteCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        if(strings.length >= 1){
-            if(strings[0].equalsIgnoreCase("reload")){
-                if(commandSender.hasPermission("minecrafteco.reload")){
+        if (strings.length >= 1) {
+            if (strings[0].equalsIgnoreCase("reload")) {
+                if (commandSender.hasPermission("minecrafteco.reload")) {
                     MonitoringPlugin.INSTANCE.getSettings().reload();
                     commandSender.sendMessage("Плагин перезагружен!");
                 }

@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -25,24 +24,27 @@ import java.util.stream.Collectors;
 
 @UtilityClass
 public class ItemUtil {
-    public ItemBuilder newBuilder(ItemStack itemStack){
+    public ItemBuilder newBuilder(ItemStack itemStack) {
         return new ItemBuilder(itemStack);
     }
-    public ItemBuilder newBuilder(Material material){
+
+    public ItemBuilder newBuilder(Material material) {
         return new ItemBuilder(material);
     }
-    public ItemStack replace(ItemStack itemStack, String oldString, String newString){
+
+    public ItemStack replace(ItemStack itemStack, String oldString, String newString) {
         var builder = newBuilder(itemStack);
         builder.replace(oldString, newString);
         return builder.build();
     }
-    public ItemStack loadItemFromConfig(ConfigurationSection section){
+
+    public ItemStack loadItemFromConfig(ConfigurationSection section) {
         ItemBuilder itemBuilder;
-        if(section == null){
+        if (section == null) {
             return new ItemStack(Material.BARRIER);
         }
         var material = getMaterialByString(section.getString("material"));
-        if(material == null){
+        if (material == null) {
             return new ItemStack(Material.BARRIER);
         }
 
@@ -51,12 +53,12 @@ public class ItemUtil {
         itemBuilder.setGlowing(section.getBoolean("glowing", false));
 
         var name = section.getString("name");
-        if(name != null){
+        if (name != null) {
             itemBuilder.setName(name);
         }
 
         var lore = section.getStringList("lore");
-        if(!lore.isEmpty()){
+        if (!lore.isEmpty()) {
             itemBuilder.setLore(lore);
         }
 
@@ -67,13 +69,12 @@ public class ItemUtil {
         }
 
         var enchants = section.getStringList("enchants");
-        for(var enchant: enchants){
+        for (var enchant : enchants) {
             try {
                 var enchantment = Enchantment.getByName(enchant.split(":")[0]);
                 var level = Integer.parseInt(enchant.split(":")[1]);
                 itemBuilder.addEnchantment(enchantment, level);
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -106,10 +107,9 @@ public class ItemUtil {
 
             if (section.getInt("color.r", -1) >= 0) {
                 Color color = Color.fromRGB(section.getInt("color.r"), section.getInt("color.g"), section.getInt("color.b"));
-                if(material.name().contains("LEATHER_")){
+                if (material.name().contains("LEATHER_")) {
                     itemBuilder.setLeatherColor(color);
-                }
-                else{
+                } else {
                     itemBuilder.setPotionColor(color);
                 }
             }
@@ -118,8 +118,9 @@ public class ItemUtil {
 
         return itemBuilder.build();
     }
+
     public Material getMaterialByString(String materialName) {
-        if(materialName == null){
+        if (materialName == null) {
             return null;
         }
         try {
@@ -132,25 +133,30 @@ public class ItemUtil {
             }
         }
     }
-    public class ItemBuilder{
+
+    public class ItemBuilder {
         private final ItemStack itemStack;
-        public ItemBuilder(Material material){
+
+        public ItemBuilder(Material material) {
             itemStack = new ItemStack(material);
         }
-        public ItemBuilder(ItemStack itemStack){
+
+        public ItemBuilder(ItemStack itemStack) {
             this.itemStack = itemStack.clone();
         }
-        public ItemBuilder setName(String name){
+
+        public ItemBuilder setName(String name) {
             var itemMeta = itemStack.getItemMeta();
             itemMeta.setDisplayName(name.replace("&", "§"));
             itemStack.setItemMeta(itemMeta);
             return this;
         }
-        public ItemBuilder replace(String oldString, String newString){
+
+        public ItemBuilder replace(String oldString, String newString) {
             var itemMeta = itemStack.getItemMeta();
             itemMeta.setDisplayName(itemMeta.getDisplayName().replace(oldString, newString));
             var oldLore = itemMeta.getLore();
-            if(oldLore != null){
+            if (oldLore != null) {
                 var newLore = oldLore.stream()
                         .map(line -> line.replace(oldString, newString))
                         .collect(Collectors.toList());
@@ -160,7 +166,8 @@ public class ItemUtil {
             itemStack.setItemMeta(itemMeta);
             return this;
         }
-        public ItemBuilder addLore(String line){
+
+        public ItemBuilder addLore(String line) {
             var itemMeta = itemStack.getItemMeta();
             var lore = itemMeta.getLore() == null ? new ArrayList<String>() : itemMeta.getLore();
             lore.add(line);
@@ -168,37 +175,43 @@ public class ItemUtil {
             itemStack.setItemMeta(itemMeta);
             return this;
         }
-        public ItemBuilder setLore(List<String> lore){
+
+        public ItemBuilder setLore(List<String> lore) {
             var itemMeta = itemStack.getItemMeta();
             lore = lore.stream().map(line -> line.replace("&", "§")).collect(Collectors.toList());
             itemMeta.setLore(lore);
             itemStack.setItemMeta(itemMeta);
             return this;
         }
-        public ItemBuilder setAmount(int amount){
+
+        public ItemBuilder setAmount(int amount) {
             itemStack.setAmount(amount);
             return this;
         }
-        public ItemBuilder setGlowing(boolean glowing){
-            if(!glowing) return this;
+
+        public ItemBuilder setGlowing(boolean glowing) {
+            if (!glowing) return this;
             var itemMeta = itemStack.getItemMeta();
             itemMeta.addEnchant(Enchantment.ARROW_DAMAGE, 0, true);
             itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             itemStack.setItemMeta(itemMeta);
             return this;
         }
-        public ItemBuilder addItemFlag(ItemFlag itemFlag){
+
+        public ItemBuilder addItemFlag(ItemFlag itemFlag) {
             var itemMeta = itemStack.getItemMeta();
             itemMeta.addItemFlags(itemFlag);
             itemStack.setItemMeta(itemMeta);
             return this;
         }
-        public ItemBuilder addEnchantment(Enchantment enchantment, int level){
+
+        public ItemBuilder addEnchantment(Enchantment enchantment, int level) {
             var itemMeta = itemStack.getItemMeta();
             itemMeta.addEnchant(enchantment, level, true);
             itemStack.setItemMeta(itemMeta);
             return this;
         }
+
         public ItemBuilder setTextureValue(String texture) {
             if (texture == null) {
                 return this;
@@ -218,6 +231,7 @@ public class ItemUtil {
             itemStack.setItemMeta(skullMeta);
             return this;
         }
+
         public ItemBuilder setLeatherColor(Color color) {
             if (color == null) {
                 return this;
@@ -229,6 +243,7 @@ public class ItemUtil {
             itemStack.setItemMeta(leatherArmorMeta);
             return this;
         }
+
         public ItemBuilder setPotionColor(Color color) {
             if (color == null) {
                 return this;
@@ -240,6 +255,7 @@ public class ItemUtil {
             itemStack.setItemMeta(potionMeta);
             return this;
         }
+
         public ItemBuilder addCustomPotionEffect(PotionEffect potionEffect, boolean isAdd) {
             if (potionEffect == null) {
                 return this;
@@ -251,7 +267,8 @@ public class ItemUtil {
             itemStack.setItemMeta(potionMeta);
             return this;
         }
-        public ItemStack build(){
+
+        public ItemStack build() {
             return itemStack;
         }
     }
