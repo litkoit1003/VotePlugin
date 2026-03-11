@@ -8,6 +8,7 @@ import org.craftarix.monitoring.MonitoringPlugin;
 import org.craftarix.monitoring.VoteMenu;
 
 public class VoteCommand implements CommandExecutor {
+
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
         if (strings.length >= 1) {
@@ -19,7 +20,14 @@ public class VoteCommand implements CommandExecutor {
                 return true;
             }
         }
-        new VoteMenu().openInventory((Player) commandSender);
+
+        // FIX: NPE/ClassCast - раньше консоль/командный блок вызывали падение
+        if (!(commandSender instanceof Player player)) {
+            commandSender.sendMessage("[MinecraftEcoVote] Эта команда только для игроков.");
+            return true;
+        }
+
+        new VoteMenu().openInventory(player);
         return true;
     }
 }

@@ -1,6 +1,7 @@
 package org.craftarix.monitoring.api;
 
 import lombok.NonNull;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.craftarix.monitoring.api.model.CurrentServerModel;
 import org.craftarix.monitoring.api.model.TakeVoteModel;
@@ -11,16 +12,34 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
 
 public class McEcoServiceAsync implements VoteService {
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
-    private final static String user_url = "https://minecraft.eco"; // ?????
-    private final static String api_url = "https://api.minecraft.eco";
+
+    // FIX: HTTP без таймаута - добавлены connectTimeout и requestTimeout
+    private static final HttpClient httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(5))
+            .build();
+
+    private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(10);
+    private static final String API_URL = "https://api.minecraft.eco";
 
     private final String apiKey;
 
     public McEcoServiceAsync(String apiKey) {
+        // FIX: Открытый API-ключ - проверяем наличие и предупреждаем, но не логируем значение
+        if (apiKey == null || apiKey.isBlank()) {
+            Bukkit.getLogger().log(Level.SEVERE,
+                    "[MinecraftEcoVote] API-ключ не задан! Укажите apiKey в config.yml");
+        } else {
+            // Показываем только первые 4 символа, остальное маскируем
+            String masked = apiKey.substring(0, Math.min(4, apiKey.length()))
+                    + "*".repeat(Math.max(0, apiKey.length() - 4));
+            Bukkit.getLogger().log(Level.INFO,
+                    "[MinecraftEcoVote] API-ключ загружен: " + masked);
+        }
         this.apiKey = apiKey;
     }
 
@@ -52,17 +71,28 @@ public class McEcoServiceAsync implements VoteService {
         return null;
     }
 
-    private CompletableFuture<HttpResponse<String>> getResponse(@NonNull String requestAddress, @NonNull String method, String writableJson) {
+    private CompletableFuture<HttpResponse<String>> getResponse(
+            @NonNull String requestAddress,
+            @NonNull String method,
+            String writableJson) {
         try {
-            var body = writableJson == null ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofString(writableJson);
-            var httpRequest = HttpRequest.newBuilder(new URI(api_url + requestAddress))
+            var body = writableJson == null
+                    ? HttpRequest.BodyPublishers.noBody()
+                    : HttpRequest.BodyPublishers.ofString(writableJson);
+
+            var httpRequest = HttpRequest.newBuilder(new URI(API_URL + requestAddress))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "PT " + apiKey)
+                    // FIX: HTTP без таймаута - таймаут на весь запрос
+                    .timeout(REQUEST_TIMEOUT)
                     .method(method, body)
                     .build();
+
             return httpClient.sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
-            e.printStackTrace();
+            // FIX: Открытый API-ключ - не выводим apiKey в стектрейсе
+            Bukkit.getLogger().log(Level.SEVERE,
+                    "[MinecraftEcoVote] Ошибка HTTP-запроса к " + requestAddress, e);
             return null;
         }
     }
